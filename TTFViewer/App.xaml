@@ -1,0 +1,26 @@
+﻿<Application x:Class="TTFViewer.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:gui="clr-namespace:GuiMisc"
+             Startup="Application_Startup">
+    <Application.Resources>
+        <gui:FontFamilyNameConverter x:Key="FontFamilyNameConverter"/>
+        <gui:ResourceKeySetting x:Key="FontFamily"
+                                ValueConverter="{StaticResource FontFamilyNameConverter}"
+                                SettingName="FontFamily"
+                                ResourceKey="{x:Static SystemFonts.MessageFontFamilyKey}"
+                                />
+        <gui:ResourceKeySetting x:Key="FontStyle"
+                                SettingName="FontStyle"
+                                ResourceKey="{x:Static SystemFonts.MessageFontStyleKey}"
+                                />
+        <gui:ResourceKeySetting x:Key="FontWeight"
+                                SettingName="FontWeight"
+                                ResourceKey="{x:Static SystemFonts.MessageFontWeightKey}"
+                                />
+        <gui:ResourceKeySetting x:Key="FontSize"
+                                SettingName="FontSize" 
+                                ResourceKey="{x:Static SystemFonts.MessageFontSizeKey}"
+                                />
+    </Application.Resources>
+</Application>

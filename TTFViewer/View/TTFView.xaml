@@ -1,0 +1,157 @@
+﻿<Window x:Class="TTFViewer.View.TTFView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:glob="clr-namespace:System.Globalization;assembly=mscorlib"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:local="clr-namespace:TTFViewer.View"
+        xmlns:gui="clr-namespace:GuiMisc"
+        xmlns:sysmenu="clr-namespace:HookSysMenu"
+        xmlns:vm="clr-namespace:TTFViewer.ViewModel"
+        mc:Ignorable="d"
+        Height="350" Width="525"
+        FontFamily="{Binding Source={StaticResource FontFamily},Path=Value}"
+        FontStyle="{Binding Source={StaticResource FontStyle},Path=Value}"
+        FontWeight="{Binding Source={StaticResource FontWeight},Path=Value}"
+        FontSize="{Binding Source={StaticResource FontSize},Path=Value}"
+        KeyboardNavigation.ControlTabNavigation="None"
+        KeyboardNavigation.TabNavigation="None"
+        KeyboardNavigation.DirectionalNavigation="Once"
+        FocusManager.FocusedElement="{Binding ElementName=TreeView,Mode=OneTime}"
+        >
+    
+    <Window.Resources>
+        <RoutedUICommand x:Key="ExitCommand" Text="E_xit">
+            <RoutedUICommand.InputGestures>
+                <KeyGesture>Ctrl+X</KeyGesture>
+            </RoutedUICommand.InputGestures>
+        </RoutedUICommand>
+
+        <gui:FontFamilyNameConverter x:Key="FontFamilyNameConverter"/>
+        <gui:UpdateFontFamiliesConverter x:Key="UpdateFontFamiliesConverter"/>
+        <gui:UpdateCollectionConverter x:Key="UpdateCollectionConverter"/>
+        <gui:UpdateFontSizesConverter x:Key="UpdateFontSizesConverter"/>
+
+        <DataTemplate x:Key="FontFamilyTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource FontFamilyNameConverter},ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}"/>
+        </DataTemplate>
+
+        <gui:FontFamilyComparer x:Key="FontFamilyComparer"/>
+        <gui:EnumerableCollection x:Key="FontFamilies" Source="{x:Static Fonts.SystemFontFamilies}" 
+                                                       EqualityComparer="{StaticResource FontFamilyComparer}"/>
+
+        <x:Array x:Key="FontStyles" Type="FontStyle">
+            <FontStyle>Normal</FontStyle>
+            <FontStyle>Oblique</FontStyle>
+            <FontStyle>Italic</FontStyle>
+        </x:Array>
+
+        <gui:FontWeightComparer x:Key="FontWeightComparer"/>
+        <gui:ComparerCollection x:Key="FontWeights" Comparer="{StaticResource FontWeightComparer}">
+            <FontWeight>Normal</FontWeight>
+            <FontWeight>Bold</FontWeight>
+        </gui:ComparerCollection>
+
+        <gui:RangeCollection x:Key="FontSizes" Min="6" Max="24"/>
+
+    </Window.Resources>
+
+    <Window.Title>
+        <Binding Path="WindowTitle"/>
+    </Window.Title>
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger SourceObject="{Binding}" EventName="ErrorEvent">
+            <local:ErrorMessageAction/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <i:Interaction.Behaviors>
+        <sysmenu:SysMenuBehavior/>
+        <local:TTFViewBehavior
+            OpenVMCommand="{Binding OpenCommand}"
+            CloseVMCommand="{Binding CloseCommand}"/>
+    </i:Interaction.Behaviors>
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Height="{DynamicResource {x:Static SystemParameters.MenuBarHeightKey}}">
+            <MenuItem Header="_File">
+                <MenuItem Header ="_Open..." Command="Open" />
+                <MenuItem Header="_Close" Command="Close"/>
+                <Separator />
+                <MenuItem Command="{StaticResource ExitCommand}"/>
+            </MenuItem>
+
+            <MenuItem Header="F_ont">
+                <MenuItem.Resources>
+                    <RadioButton x:Key="RadioIcon" x:Shared="False" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+                    <Style x:Key="RadioIconStyle" TargetType="MenuItem">
+                        <Setter Property="Icon" Value="{StaticResource RadioIcon}"/>
+                    </Style>
+                </MenuItem.Resources>
+                <MenuItem Header="Font_Family" ItemsSource="{x:Static Fonts.SystemFontFamilies}"
+                          gui:FontMenuBehavior.SelectedItem ="{Binding Source={StaticResource FontFamily},Path=Value,
+                                                                       Converter={StaticResource UpdateFontFamiliesConverter},
+                                                                       ConverterParameter={StaticResource FontFamilies}}"
+                          ItemContainerStyle="{StaticResource RadioIconStyle}"
+                          ItemTemplate="{StaticResource FontFamilyTemplate}"/>
+
+                <MenuItem Header="Font_Style" ItemsSource="{StaticResource FontStyles}" 
+                          gui:FontMenuBehavior.SelectedItem ="{Binding Source={StaticResource FontStyle},Path=Value}"
+                          ItemContainerStyle="{StaticResource RadioIconStyle}"/>
+
+                <MenuItem Header="Font_Weight" ItemsSource="{StaticResource FontWeights}"
+                          gui:FontMenuBehavior.SelectedItem ="{Binding Source={StaticResource FontWeight},Path=Value,
+                                                                       Converter={StaticResource UpdateCollectionConverter},
+                                                                       ConverterParameter={StaticResource FontWeight}}"
+                          ItemContainerStyle="{StaticResource RadioIconStyle}"/>
+
+                <MenuItem Header="FontS_ize" ItemsSource="{StaticResource FontSizes}"
+                          gui:FontMenuBehavior.SelectedItem ="{Binding Source={StaticResource FontSize},Path=Value,
+                                                                       Converter={StaticResource UpdateFontSizesConverter},
+                                                                       ConverterParameter={StaticResource FontSizes}}"
+                          ItemContainerStyle="{StaticResource RadioIconStyle}"/>
+
+                <MenuItem Header="_DefaultFont" IsCheckable="True">
+                    <MenuItem.IsChecked>
+                        <gui:FontResetExtension>
+                            <StaticResource ResourceKey="FontFamily"/>
+                            <StaticResource ResourceKey="FontStyle"/>
+                            <StaticResource ResourceKey="FontWeight"/>
+                            <StaticResource ResourceKey="FontSize"/>
+                        </gui:FontResetExtension>
+                    </MenuItem.IsChecked>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <TreeView Name="TreeView" ItemsSource="{Binding ItemViewModel.Children,NotifyOnTargetUpdated=True}"
+            VirtualizingPanel.IsVirtualizing="True">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="TextBlock" Text="{Binding Text}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Name="Description" Text="{Binding Description}" Foreground="Green"/>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </DockPanel>
+</Window>

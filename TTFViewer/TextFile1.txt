@@ -1,0 +1,39 @@
+﻿TTC Header Version 1.0 --> TTCHeader_Version1
+TTC Header Version 2.0 --> TTCHeader_Version2
+	Type TAG --> Tag
+	uint32 dsigTag	--> Tag
+	uint32 dsigOffset --> Offset32 dsigOffset
+Offset Table --> OffsetTable
+Table Record --> TableRecord
+DSIG.flags bit8-bit15 is not described
+Signature Block --> SignatureBlock
+Signature Block Format 1 --> SignatureBlock_Format1
+'cmap' Subtable --> cmapSubtable
+'cmap' Subtable Format 0 --> cmapSubtable_Format0
+'cmap' Subtable Format 2 
+	SubHeader subHeaders[] --> where is the array-size ? ignored
+	uint16 glyphIndexArray[] --> where is the array-size ? ignored
+'cmap' Subtable Format 4
+	uint16 glyphIdArray[] --> where is the array-size ? ignored
+'cmap' Subtable Format 10
+	uint16 glyphs[] --> where is the array-size ? ignored
+'hmtx'
+    ?? The number of elements in the left side bearing will be derived from numberOfHMetrics plus the numGlyphs field in the 'maxp' table.
+	   --> maxp.numGlyphs - hhea.numberOfHMetrics
+maxp Version 0.5 --> maxp_Version05
+maxp Version 1.0 --> maxp_Version10
+Naming table format 0 --> name_format0
+Naming table format 1 --> name_format1
+OS/2 Version 0 --> OS2_Version0
+OS/2 Version 1 --> OS2_Version1
+post Header --> post_Header
+	Fixed --> ??
+	FWord --> FWORD
+	FWord --> FWORD
+post Version1.0 --> post_Version10
+post Version2.0 --> post_Version20
+	int8 names[numberNewGlyphs] --> PascalString[] names;
+post Version2.5 --> post_Version25
+post Version3.0 --> post_Version30
+
+--> name_String
